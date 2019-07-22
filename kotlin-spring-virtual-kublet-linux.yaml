@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-spring-kotlin-front-virtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azure-spring-kotlin-front-virtual
+  template:
+    metadata:
+      labels:
+        app: azure-spring-kotlin-front-virtual
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+        kubernetes.io/role: agent
+        type: virtual-kubelet
+      containers:
+        - name: kotlin-container
+          image: {your app regostry}
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: acr-auth-docker
+
+
+      tolerations:
+        - key: virtual-kubelet.io/provider
+          operator: Equal
+          value: azure
+          effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-spring-kotlin-front-virtual-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+  selector:
+    app: azure-spring-kotlin-front-virtual
